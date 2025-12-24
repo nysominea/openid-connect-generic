@@ -28,3 +28,22 @@ function oidcg_get_authentication_url() {
 function oidcg_refresh_user_claim( $user, $token_response ) {
 	return \OpenID_Connect_Generic::instance()->client_wrapper->refresh_user_claim( $user, $token_response );
 }
+
+add_action('openid-connect-generic-update-user-using-current-claim', function( $user, $user_claim) {
+    
+	if ( empty( $user_claim['roles'] ) ) {
+		return;
+	}
+
+	if ( in_array( 'administrator', (array) $user_claim['roles'], true ) ) {
+		$user->set_role( 'administrator' );
+	} elseif (in_array( 'editor', (array) $user_claim['roles'], true ) ) {
+		$user->set_role( 'editor' );
+	} elseif (in_array( 'author', (array) $user_claim['roles'], true ) ) {
+		$user->set_role( 'author' );
+	} elseif (in_array( 'contributor', (array) $user_claim['roles'], true ) ) {
+		$user->set_role( 'contributor' );
+	} else {
+		$user->set_role( 'subscriber' );
+	}
+}, 10, 2); 
